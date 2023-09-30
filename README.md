@@ -1,2 +1,4 @@
 # banking-transfer
-Simple API for banking transactions.
+
+Para transfer işlemi yapmak için GO dili ile yazılmış bir RestAPI servisidir.
+
