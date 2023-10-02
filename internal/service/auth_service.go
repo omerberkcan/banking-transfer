@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/labstack/gommon/log"
+	"github.com/omerberkcan/banking-transfer/dto"
 	"github.com/omerberkcan/banking-transfer/internal/repository"
 	"github.com/omerberkcan/banking-transfer/model"
 	"golang.org/x/crypto/bcrypt"
@@ -15,12 +16,13 @@ type (
 
 	IAuthService interface {
 		CheckLoginInformation(idNo, password string) (*model.User, error)
+		CheckAndSaveUser(r dto.RegisterDTO) error
 		CreateToken()
 	}
 )
 
-func (s authService) CheckLoginInformation(idNo, password string) (*model.User, error) {
-	user, err := s.store.Users().FindByIDNo(idNo)
+func (as authService) CheckLoginInformation(idNo, password string) (*model.User, error) {
+	user, err := as.store.Users().FindByIDNo(idNo)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, err
@@ -35,6 +37,24 @@ func (s authService) CheckLoginInformation(idNo, password string) (*model.User, 
 	}
 
 	return user, nil
+}
+
+func (as authService) CheckAndSaveUser(r dto.RegisterDTO) error {
+	hashPass, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user := model.User{Name: r.Name,
+		IdNo:     r.IdNo,
+		Balance:  r.Balance,
+		Password: string(hashPass),
+	}
+
+	err = as.store.Users().Create(&user)
+
+	return err
+
 }
 
 func (s authService) CreateToken() {

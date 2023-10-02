@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/omerberkcan/banking-transfer/dto"
+	"github.com/omerberkcan/banking-transfer/helper"
 	"github.com/omerberkcan/banking-transfer/internal/service"
 )
 
@@ -12,15 +13,17 @@ type authHandler struct {
 
 type IAuthHandler interface {
 	Login(c echo.Context) error
+	Register(c echo.Context) error
 }
 
 var (
 	invalidUser     = "Incorrect ID No or Password "
 	validationError = "Validate Error"
 	invalidJSON     = "Invalid Json"
+	invalidIDNo     = "Invalid ID Number"
 )
 
-func (a authHandler) Login(c echo.Context) error {
+func (ah authHandler) Login(c echo.Context) error {
 	var loginReq dto.LoginDTO
 	var err error
 
@@ -29,15 +32,38 @@ func (a authHandler) Login(c echo.Context) error {
 	}
 
 	if err = c.Validate(&loginReq); err != nil {
-		return err //api.RespondWithError(c, http.StatusBadRequest, global.ValidationError, "Invalid Json Data", err)
+		return err
 	}
 
-	_, err = a.authService.CheckLoginInformation(loginReq.IdNo, loginReq.Password)
+	_, err = ah.authService.CheckLoginInformation(loginReq.IdNo, loginReq.Password)
 	if err != nil {
-		return err // api.RespondWithError(c, http.StatusUnauthorized, global.InvalidUser, "Incorrect Username Or Password", err)
+		return err
 	}
 
 	//CreateToken
 
+	return nil
+}
+
+func (ah authHandler) Register(c echo.Context) error {
+	var registerReq dto.RegisterDTO
+	var err error
+
+	if err = c.Bind(&registerReq); err != nil {
+		return err
+	}
+
+	if err = c.Validate(&registerReq); err != nil {
+		return err
+	}
+
+	if !helper.IsNumeric(registerReq.IdNo) {
+		return err
+	}
+
+	err = ah.authService.CheckAndSaveUser(registerReq)
+	if err != nil {
+		return err
+	}
 	return nil
 }

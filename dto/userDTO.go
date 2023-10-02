@@ -8,8 +8,8 @@ type LoginDTO struct {
 }
 
 type RegisterDTO struct {
-	IdNo     string          `json:"id_no" validate:"required"`
+	IdNo     string          `json:"id_no" validate:"required,len=11"`
 	Name     string          `json:"name" validate:"required"`
 	Password string          `json:"password" validate:"required"`
-	Balance  decimal.Decimal `json:"balance"`
+	Balance  decimal.Decimal `json:"balance" validate:"min=0"`
 }

@@ -25,9 +25,9 @@ func (ur *Repository) FindByID(id uint) (*model.User, error) {
 	return &user, err
 }
 
-func (ur *Repository) Create(user *model.User) (*model.User, error) {
+func (ur *Repository) Create(user *model.User) error {
 	err := ur.db.Create(&user).Error
-	return user, err
+	return err
 }
 
 func (ur *Repository) UpdateBalance(userID uint, balance float32) error {

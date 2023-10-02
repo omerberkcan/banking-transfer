@@ -11,6 +11,6 @@ type UserRepository interface {
 	FindByID(id uint) (*model.User, error)
 	FindByIDNo(IDNo string) (*model.User, error)
 	UpdateBalance(userID uint, balance float32) error
-	Create(login *model.User) (*model.User, error)
+	Create(user *model.User) error
 	Migrate() error
 }
