@@ -2,7 +2,7 @@ package repository
 
 import "github.com/omerberkcan/banking-transfer/model"
 
-type Store interface {
+type Stores interface {
 	Users() UserRepository
 	Ping() error
 }
