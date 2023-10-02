@@ -13,22 +13,23 @@ func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (ur *Repository) FindByTCNo(TCNo string) (model.User, error) {
+func (ur *Repository) FindByTCNo(TCNo string) (*model.User, error) {
 	var user model.User
 	err := ur.db.Where("tcno = ?", TCNo).First(&user).Error
 	if err != nil {
-		return user, err
+		return &user, err
 	}
-	return user, err
+	return &user, err
 }
 
-func (ur *Repository) FindByID(id uint) (model.User, error) {
+func (ur *Repository) FindByID(id uint) (*model.User, error) {
 	var user model.User
 	err := ur.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
-		return user, err
+		return &user, err
 	}
-	return user, err
+
+	return &user, err
 }
 
 func (ur *Repository) Create(user *model.User) (*model.User, error) {
