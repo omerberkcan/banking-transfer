@@ -12,10 +12,9 @@ type Configuration struct {
 }
 
 type SystemConfiguration struct {
-	Port                   string `default:"9295"`
-	AccessTokenExpireTime  string `default:"30m"`
-	RefreshTokenExpireTime string `default:"30m"`
-	TokenSecretKey         string `default:"jwt-token-secret-key"`
+	Port                  string `default:"9295"`
+	AccessTokenExpireTime string `default:"10m"`
+	TokenSecretKey        string `default:"jwt-token-secret-key"`
 }
 
 type DBConfiguration struct {

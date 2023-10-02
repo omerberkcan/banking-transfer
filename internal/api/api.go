@@ -10,6 +10,6 @@ type Handler struct {
 
 func NewHandler(s *service.Services) *Handler {
 	return &Handler{
-		Auth: authHandler{s.Auth},
+		Auth: authHandler{authService: s.Auth},
 	}
 }

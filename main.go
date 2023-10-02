@@ -21,10 +21,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("cannot connect mysql server: %s", err.Error())
 	}
+
 	repo := repository.New(db)
-
 	s := service.New(repo)
-
 	handlers := api.NewHandler(s)
 
 	e := echo.New()
@@ -33,6 +32,6 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	e.POST("login", handlers.Auth.Login)
+	e.POST("v1/login", handlers.Auth.Login)
 
 }
