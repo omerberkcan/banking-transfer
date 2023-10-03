@@ -9,13 +9,13 @@ var configuration *Configuration
 type Configuration struct {
 	System SystemConfiguration
 	MySQL  DBConfiguration
+	Redis  RedisConfiguration
 }
 
 type SystemConfiguration struct {
-	Port                   string `default:"9295"`
-	AccessTokenExpireTime  string `default:"30m"`
-	RefreshTokenExpireTime string `default:"30m"`
-	TokenSecretKey         string `default:"jwt-token-secret-key"`
+	Port                  string `default:"9295"`
+	AccessTokenExpireTime string `default:"10m"`
+	TokenSecretKey        string `default:"jwt-token-secret-key"`
 }
 
 type DBConfiguration struct {
@@ -24,6 +24,12 @@ type DBConfiguration struct {
 	Username string `default:"root"`
 	Password string `default:"1234"`
 	Port     string `default:"3306"`
+}
+
+type RedisConfiguration struct {
+	Addr     string `default:"localhost"`
+	Password string `default:""`
+	DB       int    `default:"0"`
 }
 
 func Init() (*Configuration, error) {
