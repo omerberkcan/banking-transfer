@@ -18,13 +18,26 @@ var (
 	errJsonMarshall = errors.New("json encoding error ")
 )
 
+// type Sessions interface {
+// 	JWTSession() JWTSession
+// }
+
+// type jwtSession struct {
+// 	client *redis.Client
+// }
+
+// func NewJWTSessions(client *redis.Client) *jwtSession {
+// 	return &jwtSession{client: client}
+// }
+
 type Redis struct {
 	client *redis.Client
 }
 
-type Session interface {
-	CreateToken(token model.TokenDetails, expireDuration time.Duration) error
+type JWTSession interface {
+	SetToken(token model.TokenDetails, expireDuration time.Duration) error
 	DeleteTokenByUserID(userID int) error
+	FindTokenByUserID(userID int) (model.TokenDetails, error)
 }
 
 func RedisConnect(redisCfg *config.RedisConfiguration) (*redis.Client, error) {
@@ -46,7 +59,7 @@ func New(r *redis.Client) *Redis {
 	}
 }
 
-func (r *Redis) CreateToken(token model.TokenDetails, expireDuration time.Duration) error {
+func (r *Redis) SetToken(token model.TokenDetails, expireDuration time.Duration) error {
 	tokenBytes, err := json.Marshal(&token)
 	if err != nil {
 		return err
@@ -65,4 +78,20 @@ func (r *Redis) DeleteTokenByUserID(userID int) error {
 	}
 
 	return nil
+}
+
+func (r *Redis) FindTokenByUserID(userID int) (model.TokenDetails, error) {
+	var token model.TokenDetails
+
+	val, err := r.client.Get(context.Background(), strconv.Itoa(userID)).Result()
+	if err != nil {
+		return token, err
+	}
+
+	err = json.Unmarshal([]byte(val), &token)
+	if err != nil {
+		return token, err
+	}
+
+	return token, nil
 }

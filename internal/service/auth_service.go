@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/gommon/log"
 	"github.com/omerberkcan/banking-transfer/dto"
 	"github.com/omerberkcan/banking-transfer/internal/config"
@@ -19,7 +19,7 @@ import (
 type (
 	authService struct {
 		store repository.Stores
-		redis session.Session
+		redis *session.Redis
 		cfg   *config.SystemConfiguration
 	}
 
@@ -75,6 +75,7 @@ func (s authService) CreateToken(usr *model.User) (string, error) {
 	// td.RefreshUuid = uuid.NewV4()
 	atExpires := time.Now().Add(accessTokenExpireDuration)
 	// td.RtExpires = time.Now().Add(refreshTokenExpireDuration)
+
 	atClaims := jwt.MapClaims{}
 	atClaims["user_id"] = usr.ID
 	atClaims["uuid"] = accessUuid.String()
@@ -87,7 +88,7 @@ func (s authService) CreateToken(usr *model.User) (string, error) {
 	}
 
 	s.redis.DeleteTokenByUserID(int(usr.ID))
-	s.redis.CreateToken(model.TokenDetails{UserID: int(usr.ID), Uuid: accessUuid, AtExpires: atExpires}, accessTokenExpireDuration)
+	s.redis.SetToken(model.TokenDetails{UserID: int(usr.ID), Uuid: accessUuid, AtExpires: atExpires}, accessTokenExpireDuration)
 
 	return acccessToken, err
 }

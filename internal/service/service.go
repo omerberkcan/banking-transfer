@@ -7,11 +7,13 @@ import (
 )
 
 type Services struct {
-	Auth AuthService
+	Auth    AuthService
+	Account AccountService
 }
 
-func New(s repository.Stores, redis session.Session, cfg *config.SystemConfiguration) *Services {
+func New(s repository.Stores, redis *session.Redis, cfg *config.SystemConfiguration) *Services {
 	return &Services{
-		Auth: authService{store: s, redis: redis, cfg: cfg},
+		Auth:    authService{store: s, redis: redis, cfg: cfg},
+		Account: accountService{store: s},
 	}
 }

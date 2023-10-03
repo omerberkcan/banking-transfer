@@ -3,18 +3,22 @@ package api
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/non-standard/validators"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	customMiddle "github.com/omerberkcan/banking-transfer/internal/middleware"
 	"github.com/omerberkcan/banking-transfer/internal/service"
 )
 
 type Handlers struct {
-	Auth AuthHandler
+	Auth    AuthHandler
+	Account AccountHandler
 }
 
 func NewHandler(s *service.Services) *Handlers {
 	return &Handlers{
-		Auth: authHandler{authService: s.Auth},
+		Auth:    authHandler{authService: s.Auth},
+		Account: accountHandler{acntService: s.Account},
 	}
 }
 
@@ -39,7 +43,15 @@ func NewEcho() *echo.Echo {
 	return e
 }
 
-func SetRouter(e *echo.Echo, h *Handlers) {
+func SetRouter(e *echo.Echo, h *Handlers, m *customMiddle.Middelwares, jwtSecret string) {
 	e.POST("v1/login", h.Auth.Login)
 	e.POST("v1/register", h.Auth.Register)
+
+	config := echojwt.Config{
+		SigningKey: []byte(jwtSecret),
+		ContextKey: "user",
+	}
+
+	e.GET("v1/accounts/profile", h.Account.GetAccountInfoByID, echojwt.WithConfig(config), m.JwtMiddleware.AuthControl)
+
 }

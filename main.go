@@ -5,6 +5,7 @@ import (
 
 	"github.com/omerberkcan/banking-transfer/internal/api"
 	"github.com/omerberkcan/banking-transfer/internal/config"
+	"github.com/omerberkcan/banking-transfer/internal/middleware"
 	"github.com/omerberkcan/banking-transfer/internal/repository"
 	"github.com/omerberkcan/banking-transfer/internal/service"
 	"github.com/omerberkcan/banking-transfer/internal/session"
@@ -32,8 +33,9 @@ func main() {
 	repo := repository.New(db)
 	s := service.New(repo, redisRepo, &c.System)
 	handlers := api.NewHandler(s)
+	middlewares := middleware.New(redisRepo)
 
-	api.SetRouter(e, handlers)
+	api.SetRouter(e, handlers, middlewares, c.System.TokenSecretKey)
 
 	e.Start(":" + c.System.Port)
 }
