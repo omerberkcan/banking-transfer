@@ -5,6 +5,7 @@ import (
 
 	"github.com/omerberkcan/banking-transfer/internal/config"
 	"github.com/omerberkcan/banking-transfer/internal/repository/user"
+	"github.com/omerberkcan/banking-transfer/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -22,7 +23,18 @@ func ConnectMysqlServer(dbcfg *config.DBConfiguration) (*gorm.DB, error) {
 	}
 
 	log.Printf("%s \n", "Mysql Connection Succesful \n")
+
+	MigrateTables(db)
+
 	return db, nil
+}
+
+func MigrateTables(db *gorm.DB) error {
+	if err := db.AutoMigrate(&model.User{}); err != nil {
+		log.Printf("failed to migrate users: %v", err)
+		return err
+	}
+	return nil
 }
 
 func New(db *gorm.DB) *Database {

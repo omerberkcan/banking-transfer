@@ -40,7 +40,7 @@ func (as authService) CheckLoginInformation(idNo, password string) (*model.User,
 }
 
 func (as authService) CheckAndSaveUser(r dto.RegisterDTO) error {
-	hashPass, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
+	_, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (as authService) CheckAndSaveUser(r dto.RegisterDTO) error {
 	user := model.User{Name: r.Name,
 		IdNo:     r.IdNo,
 		Balance:  r.Balance,
-		Password: string(hashPass),
+		Password: r.Password,
 	}
 
 	err = as.store.Users().Create(&user)

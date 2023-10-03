@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/omerberkcan/banking-transfer/internal/api"
 	"github.com/omerberkcan/banking-transfer/internal/config"
 	"github.com/omerberkcan/banking-transfer/internal/repository"
@@ -22,16 +20,13 @@ func main() {
 		log.Fatalf("cannot connect mysql server: %s", err.Error())
 	}
 
+	e := api.NewEcho()
+
 	repo := repository.New(db)
 	s := service.New(repo)
 	handlers := api.NewHandler(s)
 
-	e := echo.New()
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowMethods:     []string{echo.DELETE, echo.GET, echo.PUT, echo.POST},
-		AllowCredentials: true,
-	}))
+	api.SetRouter(e, handlers)
 
-	e.POST("v1/login", handlers.Auth.Login)
-
+	e.Start(":" + c.System.Port)
 }

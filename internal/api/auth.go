@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/omerberkcan/banking-transfer/dto"
 	"github.com/omerberkcan/banking-transfer/helper"
@@ -65,5 +67,6 @@ func (ah authHandler) Register(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return nil
+
+	return c.String(http.StatusCreated, "Ok")
 }

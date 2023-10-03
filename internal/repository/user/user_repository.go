@@ -34,8 +34,3 @@ func (ur *Repository) UpdateBalance(userID uint, balance float32) error {
 	err := ur.db.Model(&model.User{}).Where("id = ?", userID).Update("balance", balance).Error
 	return err
 }
-
-// Migrate ...
-func (ur *Repository) Migrate() error {
-	return ur.db.AutoMigrate(&model.User{})
-}
