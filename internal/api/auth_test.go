@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/omerberkcan/banking-transfer/internal/config"
 	"github.com/omerberkcan/banking-transfer/internal/repository"
 	"github.com/omerberkcan/banking-transfer/internal/service"
 	"gorm.io/driver/mysql"
@@ -27,7 +28,7 @@ func dbSetup() (*gorm.DB, sqlmock.Sqlmock) {
 
 func apiSetup(db *gorm.DB) *Handlers {
 	repo := repository.New(db)
-	s := service.New(repo)
+	s := service.New(repo, nil, &config.SystemConfiguration{AccessTokenExpireTime: "15m", TokenSecretKey: "secret"})
 	handlers := NewHandler(s)
 	return handlers
 }

@@ -16,7 +16,7 @@ type Database struct {
 }
 
 func ConnectMysqlServer(dbcfg *config.DBConfiguration) (*gorm.DB, error) {
-	conStr := dbcfg.Username + ":" + dbcfg.Password + "@tcp(" + dbcfg.Host + ")/" + dbcfg.Dbname
+	conStr := dbcfg.Username + ":" + dbcfg.Password + "@tcp(" + dbcfg.Host + ")/" + dbcfg.Dbname + "?parseTime=true"
 	db, err := gorm.Open(mysql.Open(conStr), &gorm.Config{})
 	if err != nil {
 		return nil, err

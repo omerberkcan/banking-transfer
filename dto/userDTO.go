@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/shopspring/decimal"
+import (
+	"github.com/shopspring/decimal"
+)
 
 type LoginDTO struct {
 	IdNo     string `json:"id_no" validate:"required,len=11,not blank"`

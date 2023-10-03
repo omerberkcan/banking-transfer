@@ -1,10 +1,17 @@
 package service
 
 import (
+	"strconv"
+	"time"
+
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/gommon/log"
 	"github.com/omerberkcan/banking-transfer/dto"
+	"github.com/omerberkcan/banking-transfer/internal/config"
 	"github.com/omerberkcan/banking-transfer/internal/repository"
+	"github.com/omerberkcan/banking-transfer/internal/session"
 	"github.com/omerberkcan/banking-transfer/model"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -12,12 +19,14 @@ import (
 type (
 	authService struct {
 		store repository.Stores
+		redis session.Session
+		cfg   *config.SystemConfiguration
 	}
 
-	IAuthService interface {
+	AuthService interface {
 		CheckLoginInformation(idNo, password string) (*model.User, error)
 		CheckAndSaveUser(r dto.RegisterDTO) error
-		CreateToken()
+		CreateToken(usr *model.User) (string, error)
 	}
 )
 
@@ -40,7 +49,7 @@ func (as authService) CheckLoginInformation(idNo, password string) (*model.User,
 }
 
 func (as authService) CheckAndSaveUser(r dto.RegisterDTO) error {
-	_, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
+	hashPass, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
@@ -48,7 +57,7 @@ func (as authService) CheckAndSaveUser(r dto.RegisterDTO) error {
 	user := model.User{Name: r.Name,
 		IdNo:     r.IdNo,
 		Balance:  r.Balance,
-		Password: r.Password,
+		Password: string(hashPass),
 	}
 
 	err = as.store.Users().Create(&user)
@@ -57,6 +66,44 @@ func (as authService) CheckAndSaveUser(r dto.RegisterDTO) error {
 
 }
 
-func (s authService) CreateToken() {
+func (s authService) CreateToken(usr *model.User) (string, error) {
+	var err error
+	accessSecret := s.cfg.TokenSecretKey
+	accessTokenExpireDuration := resolveTokenExpireDuration(s.cfg.AccessTokenExpireTime)
 
+	accessUuid := uuid.NewV4()
+	// td.RefreshUuid = uuid.NewV4()
+	atExpires := time.Now().Add(accessTokenExpireDuration)
+	// td.RtExpires = time.Now().Add(refreshTokenExpireDuration)
+	atClaims := jwt.MapClaims{}
+	atClaims["user_id"] = usr.ID
+	atClaims["uuid"] = accessUuid.String()
+	atClaims["exp"] = time.Now().Add(accessTokenExpireDuration).Unix()
+	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
+
+	acccessToken, err := at.SignedString([]byte(accessSecret))
+	if err != nil {
+		return "", err
+	}
+
+	s.redis.DeleteTokenByUserID(int(usr.ID))
+	s.redis.CreateToken(model.TokenDetails{UserID: int(usr.ID), Uuid: accessUuid, AtExpires: atExpires}, accessTokenExpireDuration)
+
+	return acccessToken, err
+}
+
+func resolveTokenExpireDuration(config string) time.Duration {
+	duration, _ := strconv.ParseInt(config[0:len(config)-1], 10, 64)
+	timeFormat := config[len(config)-1:]
+
+	switch timeFormat {
+	case "m":
+		return time.Duration(time.Minute.Nanoseconds() * duration)
+	case "h":
+		return time.Duration(time.Hour.Nanoseconds() * duration)
+	case "d":
+		return time.Duration(time.Hour.Nanoseconds() * 24 * duration)
+	default:
+		return time.Duration(time.Minute.Nanoseconds() * 30)
+	}
 }

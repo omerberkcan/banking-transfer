@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -10,19 +11,20 @@ import (
 )
 
 type authHandler struct {
-	authService service.IAuthService
+	authService service.AuthService
 }
 
-type IAuthHandler interface {
+type AuthHandler interface {
 	Login(c echo.Context) error
 	Register(c echo.Context) error
 }
 
 var (
-	invalidUser     = "Incorrect ID No or Password "
-	validationError = "Validate Error"
-	invalidJSON     = "Invalid Json"
-	invalidIDNo     = "Invalid ID Number"
+	invalidUser     = "incorrect ID No or Password "
+	validationError = "validate Error"
+	invalidJSON     = "invalid Json"
+	invalidIDNo     = "invalid ID Number"
+	unexpectedError = "unexpected Error"
 )
 
 func (ah authHandler) Login(c echo.Context) error {
@@ -30,21 +32,25 @@ func (ah authHandler) Login(c echo.Context) error {
 	var err error
 
 	if err = c.Bind(&loginReq); err != nil {
-		return err
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, invalidJSON)
 	}
 
 	if err = c.Validate(&loginReq); err != nil {
-		return err
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, validationError)
 	}
 
-	_, err = ah.authService.CheckLoginInformation(loginReq.IdNo, loginReq.Password)
+	usr, err := ah.authService.CheckLoginInformation(loginReq.IdNo, loginReq.Password)
 	if err != nil {
-		return err
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, invalidUser)
 	}
 
-	//CreateToken
+	token, err := ah.authService.CreateToken(usr)
+	if err != nil {
+		log.Printf("create token unexpected error: %s", err.Error())
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, unexpectedError)
+	}
 
-	return nil
+	return RespondWithData(c, http.StatusOK, "Success", echo.Map{"access_token": token})
 }
 
 func (ah authHandler) Register(c echo.Context) error {
@@ -52,15 +58,15 @@ func (ah authHandler) Register(c echo.Context) error {
 	var err error
 
 	if err = c.Bind(&registerReq); err != nil {
-		return err
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, invalidJSON)
 	}
 
 	if err = c.Validate(&registerReq); err != nil {
-		return err
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, validationError)
 	}
 
 	if !helper.IsNumeric(registerReq.IdNo) {
-		return err
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, invalidIDNo)
 	}
 
 	err = ah.authService.CheckAndSaveUser(registerReq)
@@ -68,5 +74,5 @@ func (ah authHandler) Register(c echo.Context) error {
 		return err
 	}
 
-	return c.String(http.StatusCreated, "Ok")
+	return RespondWithOk(c, http.StatusOK, "Success")
 }

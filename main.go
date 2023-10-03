@@ -7,6 +7,7 @@ import (
 	"github.com/omerberkcan/banking-transfer/internal/config"
 	"github.com/omerberkcan/banking-transfer/internal/repository"
 	"github.com/omerberkcan/banking-transfer/internal/service"
+	"github.com/omerberkcan/banking-transfer/internal/session"
 )
 
 func main() {
@@ -20,10 +21,16 @@ func main() {
 		log.Fatalf("cannot connect mysql server: %s", err.Error())
 	}
 
+	redis, err := session.RedisConnect(&c.Redis)
+	if err != nil {
+		log.Fatalf("cannot connect redis: %s", err.Error())
+	}
+	redisRepo := session.New(redis)
+
 	e := api.NewEcho()
 
 	repo := repository.New(db)
-	s := service.New(repo)
+	s := service.New(repo, redisRepo, &c.System)
 	handlers := api.NewHandler(s)
 
 	api.SetRouter(e, handlers)

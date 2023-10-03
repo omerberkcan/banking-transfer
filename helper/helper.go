@@ -1,6 +1,8 @@
 package helper
 
-import "regexp"
+import (
+	"regexp"
+)
 
 func IsNumeric(s string) bool {
 	// Define a regular expression pattern to match numeric characters only

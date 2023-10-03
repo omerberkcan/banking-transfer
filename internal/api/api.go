@@ -9,7 +9,7 @@ import (
 )
 
 type Handlers struct {
-	Auth IAuthHandler
+	Auth AuthHandler
 }
 
 func NewHandler(s *service.Services) *Handlers {

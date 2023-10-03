@@ -9,6 +9,7 @@ var configuration *Configuration
 type Configuration struct {
 	System SystemConfiguration
 	MySQL  DBConfiguration
+	Redis  RedisConfiguration
 }
 
 type SystemConfiguration struct {
@@ -23,6 +24,12 @@ type DBConfiguration struct {
 	Username string `default:"root"`
 	Password string `default:"1234"`
 	Port     string `default:"3306"`
+}
+
+type RedisConfiguration struct {
+	Addr     string `default:"localhost"`
+	Password string `default:""`
+	DB       int    `default:"0"`
 }
 
 func Init() (*Configuration, error) {
