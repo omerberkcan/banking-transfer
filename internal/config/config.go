@@ -58,6 +58,10 @@ func bindEnvs() {
 	viper.BindEnv("mysql.Username", "BT_MYSQL_USERNAME")
 	viper.BindEnv("mysql.Password", "BT_MYSQL_PASSWORD")
 	viper.BindEnv("mysql.PORT", "BT_MYSQL_PORT")
+
+	viper.BindEnv("redis.Addr", "BT_REDIS_HOST")
+	viper.BindEnv("redis.Db", "BT_REDIS_DB")
+	viper.BindEnv("redis.Password", "BT_REDIS_PASSWORD")
 }
 
 func setDefault() {
@@ -71,4 +75,8 @@ func setDefault() {
 	viper.SetDefault("mysql.Username", "root")
 	viper.SetDefault("mysql.Password", "1234")
 	viper.SetDefault("mysql.PORT", "3306")
+
+	viper.BindEnv("redis.Addr", "localhost")
+	viper.BindEnv("redis.Db", "0")
+	viper.BindEnv("redis.Password", "")
 }

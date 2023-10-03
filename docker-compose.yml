@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: bank
+      MYSQL_USER: bankuser
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes: 
+      - redis-data:/data
+  banking-transfer:
+    container_name: banking-transfer
+    image: banking-transfer:latest
+    restart: always
+    environment:
+      - BT_MYSQL_DBNAME=bank
+      - BT_MYSQL_HOST=mysql
+      - BT_MYSQL_USERNAME=bankuser
+      - BT_MYSQL_PASSWORD=1234 
+      - BT_MYSQL_PORT=3306
+      - BT_REDIS_HOST=cache:6379
+    links:
+      - cache
+    build:
+      context: .
+    depends_on:
+      - mysql
+      - cache
+    ports:
+      - 9295:9295
+    
+volumes:
+  redis-data:
+    driver: local
+  dbdata:

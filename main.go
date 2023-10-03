@@ -22,6 +22,7 @@ func main() {
 		log.Fatalf("cannot connect mysql server: %s", err.Error())
 	}
 
+	log.Printf("config %v", c)
 	redis, err := session.RedisConnect(&c.Redis)
 	if err != nil {
 		log.Fatalf("cannot connect redis: %s", err.Error())

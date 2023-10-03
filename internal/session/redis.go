@@ -49,6 +49,8 @@ func RedisConnect(redisCfg *config.RedisConfiguration) (*redis.Client, error) {
 	_, err := client.Ping(context.Background()).Result()
 	if err == nil {
 		log.Printf("%s \n", "Redis Connection Succesful \n")
+	} else {
+		log.Printf("cannot connect redis %s ", redisCfg.Addr)
 	}
 	return client, err
 }
