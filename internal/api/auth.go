@@ -77,7 +77,7 @@ func (ah authHandler) Register(c echo.Context) error {
 
 	err = ah.authService.CheckAndSaveUser(registerReq)
 	if err != nil {
-		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, invalidIDNo)
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, duplicateIDNo)
 	}
 
 	return RespondWithOk(c, http.StatusOK, "Success")
