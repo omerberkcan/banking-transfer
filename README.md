@@ -1,4 +1,4 @@
-# banking-transfer
+# Banking Transfer Money API
 
 This is a simple bank transfer system implemented in golang.This project serves as a basic example and should not be used for actual financial transactions.
 
