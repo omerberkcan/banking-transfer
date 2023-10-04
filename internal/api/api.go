@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/non-standard/validators"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -11,14 +13,16 @@ import (
 )
 
 type Handlers struct {
-	Auth    AuthHandler
-	Account AccountHandler
+	Auth     AuthHandler
+	Account  AccountHandler
+	Transfer TransferHandler
 }
 
 func NewHandler(s *service.Services) *Handlers {
 	return &Handlers{
-		Auth:    authHandler{authService: s.Auth},
-		Account: accountHandler{acntService: s.Account},
+		Auth:     authHandler{authService: s.Auth},
+		Account:  accountHandler{acntService: s.Account},
+		Transfer: transferHandler{transferService: s.Transfer},
 	}
 }
 
@@ -53,5 +57,12 @@ func SetRouter(e *echo.Echo, h *Handlers, m *customMiddle.Middelwares, jwtSecret
 	}
 
 	e.GET("v1/accounts/profile", h.Account.GetAccountInfoByID, echojwt.WithConfig(config), m.JwtMiddleware.AuthControl)
+	e.POST("v1/transfers", h.Transfer.TransferMoney, echojwt.WithConfig(config), m.JwtMiddleware.AuthControl)
 
+	e.GET("v1/health", HealthStatus)
+
+}
+
+func HealthStatus(c echo.Context) error {
+	return c.String(http.StatusOK, "Service is healthy!")
 }

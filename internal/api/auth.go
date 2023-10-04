@@ -8,6 +8,7 @@ import (
 	"github.com/omerberkcan/banking-transfer/dto"
 	"github.com/omerberkcan/banking-transfer/helper"
 	"github.com/omerberkcan/banking-transfer/internal/service"
+	"github.com/shopspring/decimal"
 )
 
 type authHandler struct {
@@ -67,6 +68,10 @@ func (ah authHandler) Register(c echo.Context) error {
 
 	if !helper.IsNumeric(registerReq.IdNo) {
 		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, invalidIDNo)
+	}
+
+	if !registerReq.Balance.IsPositive() {
+		registerReq.Balance = decimal.NewFromFloat32(100)
 	}
 
 	err = ah.authService.CheckAndSaveUser(registerReq)

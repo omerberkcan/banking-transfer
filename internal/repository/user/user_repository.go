@@ -1,7 +1,10 @@
 package user
 
 import (
+	"log"
+
 	"github.com/omerberkcan/banking-transfer/model"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +33,16 @@ func (ur *Repository) Create(user *model.User) error {
 	return err
 }
 
-func (ur *Repository) UpdateBalance(userID uint, balance float32) error {
+func (ur Repository) UpdateBalance(userID uint, balance decimal.Decimal) error {
 	err := ur.db.Model(&model.User{}).Where("id = ?", userID).Update("balance", balance).Error
 	return err
+}
+
+func (ur Repository) WithTrx(trxHandle *gorm.DB) Repository {
+	if trxHandle == nil {
+		log.Print("Transaction Database not found")
+		return ur
+	}
+	ur.db = trxHandle
+	return ur
 }
