@@ -21,8 +21,6 @@ FROM alpine:latest
 
 WORKDIR /app
 
-CMD [ "ls" ]
-
 ENTRYPOINT ["./banking-transfer"]
 
 COPY --from=builder /app/banking-transfer /app/banking-transfer

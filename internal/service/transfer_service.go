@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	insufficientBalance = errors.New("Insufficient Balance in Your Wallet for This Transfer")
-	wrongIDNumber       = errors.New("Wrong ID Number")
-	somethingWentWrong  = errors.New("Something Went Wrong")
-	recordNotFound      = errors.New("User not found")
-	invalidTransfer     = errors.New("you cannot send money yourself")
+	errInsufficientBalance = errors.New("insufficient balance in your wallet for this transfer")
+	errWrongIDNumber       = errors.New("wrong ID Number")
+	errSomethingWentWrong  = errors.New("something went wrong")
+	errRecordNotFound      = errors.New("user not found")
+	errInvalidTransfer     = errors.New("you cannot send money yourself")
 )
 
 type (
@@ -31,20 +31,20 @@ type (
 func (ts transferService) MoneyTransfer(id uint, t dto.TransferDTO) error {
 	originUsr, err := ts.store.Users().FindByID(id)
 	if err != nil {
-		return err
+		return errRecordNotFound
 	}
 
 	if originUsr.Balance.Cmp(t.Amount) == -1 {
-		return insufficientBalance
+		return errInsufficientBalance
 	}
 
 	destUsr, err := ts.store.Users().FindByIDNo(t.IDNo)
 	if err != nil {
-		return wrongIDNumber
+		return errWrongIDNumber
 	}
 
 	if originUsr.IdNo == destUsr.IdNo {
-		return invalidTransfer
+		return errInvalidTransfer
 	}
 
 	db := ts.store.TxBegin()
@@ -63,7 +63,7 @@ func (ts transferService) MoneyTransfer(id uint, t dto.TransferDTO) error {
 	if err != nil {
 		log.Print("update balance error: ", err)
 		db.Rollback()
-		return somethingWentWrong
+		return errSomethingWentWrong
 	}
 
 	destLastBalance := destUsr.Balance.Add(t.Amount)
@@ -71,7 +71,7 @@ func (ts transferService) MoneyTransfer(id uint, t dto.TransferDTO) error {
 	if err != nil {
 		log.Print("update balance error: ", err)
 		db.Rollback()
-		return somethingWentWrong
+		return errSomethingWentWrong
 	}
 
 	transfer := &model.Transfer{
@@ -86,12 +86,12 @@ func (ts transferService) MoneyTransfer(id uint, t dto.TransferDTO) error {
 	if err != nil {
 		db.Rollback()
 		log.Print("create transfer error: ", err)
-		return somethingWentWrong
+		return errSomethingWentWrong
 	}
 
 	if err := db.Commit().Error; err != nil {
 		log.Print("trx commit error: ", err)
-		return somethingWentWrong
+		return errSomethingWentWrong
 	}
 	return nil
 }
