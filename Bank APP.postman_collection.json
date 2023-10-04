@@ -1,0 +1,106 @@
+{
+	"info": {
+		"_postman_id": "b3f67f5b-1377-43fe-a4be-3581edd26812",
+		"name": "Bank APP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8565546"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8080/v1/login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id_no\":\"11111111111\",\"password\":\"12345\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/v1/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Profile",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTYzODc1OTQsInVzZXJfaWQiOjMsInV1aWQiOiIyZWIyODQ5NC1jNDJjLTQ4ZjgtYmI2Yy0zMGI1ZWQ3ZjExNTUifQ.6CeG-6wycbFX9BiWt6VfQhHt71LDax-opXx8PdewTus",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8080/v1/accounts/profile",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"accounts",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transfer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTYzODgwMTUsInVzZXJfaWQiOjMsInV1aWQiOiJjYmUwNDJkZS1kNDIxLTQzYTYtYjFlMi1kM2RiMWMyZDU4YjYifQ._UdxmTfz_GWQiqrYd4xa57s-cq_vOW7HroZ94lxQz08",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id_no\":\"44444444444\",\r\n\"amount\":10,\r\n\"description\":\"as\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/v1/transfers",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"transfers"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

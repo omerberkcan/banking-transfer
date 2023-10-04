@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: bank
+      MYSQL_USER: bankuser
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - mynetwork 
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes: 
+      - redis-data:/data
+    networks:
+      - mynetwork 
+
+  nginx:
+    image: nginx:latest
+    container_name: webserver
+    ports:
+      - 8080:80
+    volumes:
+      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - mynetwork 
+    depends_on:
+      - banking-transfer-1 
+      - banking-transfer-2
+
+  banking-transfer-1:
+    container_name: banking-transfer1
+    image: banking-transfer:latest
+    restart: always
+    environment:
+      - BT_MYSQL_DBNAME=bank
+      - BT_MYSQL_HOST=mysql
+      - BT_MYSQL_USERNAME=bankuser
+      - BT_MYSQL_PASSWORD=1234 
+      - BT_MYSQL_PORT=3306
+      - BT_REDIS_HOST=cache:6379
+    links:
+      - cache
+    build:
+      context: .
+    depends_on:
+      - mysql
+      - cache 
+    networks:
+      - mynetwork
+  banking-transfer-2:
+    container_name: banking-transfer2
+    image: banking-transfer:latest
+    restart: always
+    environment:
+      - BT_MYSQL_DBNAME=bank
+      - BT_MYSQL_HOST=mysql
+      - BT_MYSQL_USERNAME=bankuser
+      - BT_MYSQL_PASSWORD=1234 
+      - BT_MYSQL_PORT=3306
+      - BT_REDIS_HOST=cache:6379
+      - BT_PORT=9296
+    links:
+      - cache
+    build:
+      context: .
+    depends_on:
+      - mysql
+      - cache 
+    networks:
+      - mynetwork
+    
+    
+volumes:
+  redis-data:
+    driver: local
+  dbdata:
+
+networks:
+  mynetwork:
