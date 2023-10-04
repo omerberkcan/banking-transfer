@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -64,5 +65,5 @@ func SetRouter(e *echo.Echo, h *Handlers, m *customMiddle.Middelwares, jwtSecret
 }
 
 func HealthStatus(c echo.Context) error {
-	return c.String(http.StatusOK, "Service is healthy!")
+	return c.String(http.StatusOK, fmt.Sprintf("Address:%s .%s", c.Echo().ListenerAddr().String(), "Service is healthy!"))
 }

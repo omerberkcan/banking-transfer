@@ -25,6 +25,7 @@ var (
 	validationError = "validate Error"
 	invalidJSON     = "invalid Json"
 	invalidIDNo     = "invalid ID Number"
+	duplicateIDNo   = "invalid or Duplicate ID Number "
 	unexpectedError = "unexpected Error"
 )
 
@@ -76,7 +77,7 @@ func (ah authHandler) Register(c echo.Context) error {
 
 	err = ah.authService.CheckAndSaveUser(registerReq)
 	if err != nil {
-		return err
+		return RespondWithError(c, http.StatusBadRequest, http.StatusBadRequest, invalidIDNo)
 	}
 
 	return RespondWithOk(c, http.StatusOK, "Success")
